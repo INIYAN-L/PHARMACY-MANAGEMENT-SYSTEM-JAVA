@@ -1,0 +1,194 @@
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+
+// Class representing a drug
+class Drug {
+    private String name;
+    private double price;
+    private int quantity;
+
+    public Drug(String name, double price, int quantity) {
+        this.name = name;
+        this.price = price;
+        this.quantity = quantity;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    @Override
+    public String toString() {
+        return "Drug Name: " + name + ", Price: $" + price + ", Quantity: " + quantity;
+    }
+}
+
+// Main class representing the pharmacy management system
+public class PharmacyManagementSystemAWT {
+    private ArrayList<Drug> inventory;
+    private TextField nameField, priceField, quantityField, sellNameField, sellQuantityField;
+
+    public PharmacyManagementSystemAWT() {
+        inventory = new ArrayList<>();
+    }
+
+    // Method to add a drug to the inventory
+    public void addDrug(String name, double price, int quantity, Frame parentFrame) {
+        inventory.add(new Drug(name, price, quantity));
+        showMessage("Drug added: " + name, parentFrame);
+    }
+
+    // Method to display the inventory in a dialog box
+    public void displayInventory(Frame parentFrame) {
+        if (inventory.isEmpty()) {
+            showMessage("No drugs available in the inventory.", parentFrame);
+        } else {
+            StringBuilder inventoryList = new StringBuilder();
+            for (Drug drug : inventory) {
+                inventoryList.append(drug).append("\n");
+            }
+            showMessage(inventoryList.toString(), parentFrame);
+        }
+    }
+
+    // Method to sell a drug
+    public void sellDrug(String name, int quantity, Frame parentFrame) {
+        for (Drug drug : inventory) {
+            if (drug.getName().equalsIgnoreCase(name)) {
+                if (drug.getQuantity() >= quantity) {
+                    drug.setQuantity(drug.getQuantity() - quantity);
+                    showMessage("Sold " + quantity + " units of " + name, parentFrame);
+                    return;
+                } else {
+                    showMessage("Insufficient stock of " + name, parentFrame);
+                    return;
+                }
+            }
+        }
+        showMessage("Drug not found in the inventory.", parentFrame);
+    }
+
+    // Method to show message dialog
+    public void showMessage(String message, Frame parentFrame) {
+        Dialog dialog = new Dialog(parentFrame, "Message", true);
+        dialog.setLayout(new FlowLayout());
+        dialog.setSize(300, 150);
+        
+        Label messageLabel = new Label(message);
+        Button okButton = new Button("OK");
+
+        okButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                dialog.setVisible(false);
+            }
+        });
+
+        dialog.add(messageLabel);
+        dialog.add(okButton);
+        dialog.setVisible(true);
+    }
+
+    // GUI setup
+    public void createGUI() {
+        Frame frame = new Frame("Pharmacy Management System");
+
+        // Labels
+        Label nameLabel = new Label("Drug Name:");
+        Label priceLabel = new Label("Drug Price:");
+        Label quantityLabel = new Label("Drug Quantity:");
+        Label sellNameLabel = new Label("Drug Name to Sell:");
+        Label sellQuantityLabel = new Label("Quantity to Sell:");
+
+        // Enlarged TextFields for better visibility
+        nameField = new TextField(20);  // 20 columns wide
+        priceField = new TextField(20); // 20 columns wide
+        quantityField = new TextField(20); // 20 columns wide
+        sellNameField = new TextField(20); // 20 columns wide
+        sellQuantityField = new TextField(20); // 20 columns wide
+
+        // Buttons
+        Button addButton = new Button("Add Drug");
+        Button sellButton = new Button("Sell Drug");
+        Button displayButton = new Button("Display Inventory");
+
+        // Set Layout
+        frame.setLayout(new FlowLayout());
+
+        // Add components to the frame
+        frame.add(nameLabel);
+        frame.add(nameField);
+        frame.add(priceLabel);
+        frame.add(priceField);
+        frame.add(quantityLabel);
+        frame.add(quantityField);
+        frame.add(addButton);
+
+        frame.add(sellNameLabel);
+        frame.add(sellNameField);
+        frame.add(sellQuantityLabel);
+        frame.add(sellQuantityField);
+        frame.add(sellButton);
+
+        frame.add(displayButton);
+
+        // Add event listeners
+        addButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    String name = nameField.getText();
+                    double price = Double.parseDouble(priceField.getText());
+                    int quantity = Integer.parseInt(quantityField.getText());
+                    addDrug(name, price, quantity, frame);
+                } catch (NumberFormatException ex) {
+                    showMessage("Invalid price or quantity input.", frame);
+                }
+            }
+        });
+
+        sellButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    String name = sellNameField.getText();
+                    int quantity = Integer.parseInt(sellQuantityField.getText());
+                    sellDrug(name, quantity, frame);
+                } catch (NumberFormatException ex) {
+                    showMessage("Invalid quantity input.", frame);
+                }
+            }
+        });
+
+        displayButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                displayInventory(frame);
+            }
+        });
+
+        // Frame settings
+        frame.setSize(500, 400);
+        frame.setVisible(true);
+        frame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) {
+                System.exit(0);
+            }
+        });
+    }
+
+    // Main method to run the pharmacy management system
+    public static void main(String[] args) {
+        PharmacyManagementSystemAWT system = new PharmacyManagementSystemAWT();
+        system.createGUI();
+    }
+}
